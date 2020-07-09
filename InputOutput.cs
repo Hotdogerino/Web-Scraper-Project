@@ -11,9 +11,9 @@ namespace Web_Scraper_Project
 {
     class InputOutput
     {
-        public static async Task GetHtmlAsync(List<HtmlNode> adressPriceList, List<HtmlNode> areaOverall, List<HtmlNode> intendances, List<HtmlNode> adresses)
+        public static async Task GetHtmlAsync(List<RealEstate> realEstates, string urlName, int currentPage, int lastPage)
         {
-            var url = "https://www.aruodas.lt/sklypai-pardavimui/kaune/aleksote/?FOfferType=1&FOrder=Price&detailed_search=1&fbclid=IwAR1EhPVF4OAQd_S_ju72eJcGYPbJJv8YpWzeNzo-adnT2y7-SlqgEtNttzY";
+            var url = urlName;
 
             var httpClient = new HttpClient();
             var html = await httpClient.GetStringAsync(url);
@@ -24,52 +24,29 @@ namespace Web_Scraper_Project
             var productsHtml = htmlDocument.DocumentNode.Descendants("table")
                 .Where(x => x.GetAttributeValue("class", "")
                 .Equals("list-search")).ToList();
-
             var productList = productsHtml[0].Descendants("tr")
-                .Where(x => x.GetAttributeValue("class", "")
+                .Where(x => x.GetAttributeValue("class", "").Trim()
                 .Contains("list-row")).ToList();
-
-            // price list
-
-            foreach (var ProductListItemAdress in productList)
+            foreach (var item in productList.ToList())
             {
-                //adressPriceList.Add
-                var xd = (ProductListItemAdress.Descendants("span")
-           .Where(x => x.GetAttributeValue("class", "")
-           .Contains("list-item-price")));
+                if (item.InnerText.Trim().Length == 0 || item.InnerText.Trim().Contains("Kiti šio arba itin panašaus objekto skelbimai (1)"))
+                {
+                    productList.Remove(item);
+                }
             }
-
-            // adress
-
-            foreach (var ProductListItemAdress in productList)
-            {
-                adresses.AddRange(ProductListItemAdress.Descendants("h3").ToList());
-            }
-
-            // area overall list
-
-            foreach (var ProductListItemArea in productList)
-            {
-                areaOverall.AddRange(ProductListItemArea.Descendants("td")
-                .Where(x => x.GetAttributeValue("class", "")
-                .Equals("list-AreaOverall")).ToList());
-            }
-
-            // intendances list
-
-            foreach (var ProductListItemIntendences in productList)
-            {
-                intendances.AddRange(ProductListItemIntendences.Descendants("td")
-                .Where(x => x.GetAttributeValue("class", "")
-                .Equals("list-Intendances")).ToList());
-            }
-
+            //for (int i = 0; i < productList.Count; i++)
+            //{
+            //    if (productList[i].InnerText.Trim().Length == 0)
+            //    {
+            //        productList.Remove(productList[i]);
+            //    }
+            //}
 
             foreach (var item in productList)
             {
-                var price = (item.Descendants("span")
+                var price = item.Descendants("span")
                 .Where(x => x.GetAttributeValue("class", "")
-                .Contains("list-item-price")));
+                .Equals("list-item-price"));
 
                 var adress = item.Descendants("h3");
 
@@ -80,67 +57,79 @@ namespace Web_Scraper_Project
                 var intendance = item.Descendants("td")
                 .Where(x => x.GetAttributeValue("class", "")
                 .Equals("list-Intendances"));
-                //RealEstate realEstate = new RealEstate(adress.First().InnerText.Trim(), price.First().InnerText
-            }
-
-
-
-
-
-            Console.WriteLine(intendances.Count);
-            Console.WriteLine();
-
-        }
-        public static void RemoveTrash(List<HtmlNode> adressPriceList)
-        {
-            adressPriceList.Where(x => x.InnerText.Contains(""));
-        }
-        public static void PrintInfoToTxt(string fileName, string filename2, string filename3, List<HtmlNode> adressPriceList, List<HtmlNode> areaOverall, List<HtmlNode> intendances)
-        {
-            using (StreamWriter writer = File.AppendText(fileName))
-            {
-                foreach (var ProductListItemPrices in adressPriceList)
+                if (price == null || adress == null || areaOveralls == null || intendance == null)
                 {
-                    writer.WriteLine(ProductListItemPrices.Descendants("h3").FirstOrDefault().InnerText.Trim());
-                    writer.WriteLine(ProductListItemPrices.Descendants("div")
-                .Where(x => x.GetAttributeValue("class", "")
-                .Equals("price")).FirstOrDefault().InnerText.Trim().Replace(" ", ""));
+                    throw new NullReferenceException("Vienas objektų yra null (t.y vieno objekto reikšmė yra niekas)");
                 }
-            }
-            using (StreamWriter writer2 = File.AppendText(filename2))
-            {
-                foreach (var ProductListItemArea in areaOverall)
-                {
+                RealEstate realEstate = new RealEstate(adress.First().InnerText.Trim(), price.First().InnerText.Replace("€", "").Replace(" ", ""), areaOveralls.First().InnerText.Trim(),
+                    intendance.First().InnerText.Trim());
+                realEstates.Add(realEstate);
+                //realEstatesHashSet.Add(realEstate);
 
-                    writer2.WriteLine(ProductListItemArea.InnerText.Trim());
-                }
+               
             }
-            using (StreamWriter writer3 = File.AppendText(filename3))
-            {
-                foreach (var ProductListItemIntendances in intendances)
-                {
-                    writer3.WriteLine(ProductListItemIntendances.InnerText.Trim());
-                }
-            }
-        }
-        public static void ReadData(string filename, string filename2, string filename3, List<HtmlNode> adressPriceList, List<HtmlNode> areaOverall, List<HtmlNode> intendances)
-        {
+
+            realEstates.Distinct().ToList();
+            //realEstatesHashSet.Distinct().ToList();
+
+            Console.WriteLine("Nuskaitymas pavyko! (" + currentPage + "/" + lastPage + ")");
 
         }
-
-        //public static void PrintListsToCSV(string fileName, List<HtmlNode> adressPriceList, List<HtmlNode> areaOverall, List<HtmlNode> intendances)
+        //public static void CheckIfItHasDupes(List<RealEstate> realEstates)
         //{
-        //    using (StreamWriter wr = new StreamWriter(fileName, false, Encoding.UTF8))
+        //    var duplicatedKey = realEstates.GroupBy(x =>new { x.Adress, x.Price, x.Intendance, x.Plot }).Where(x => x.Count() > 1).Select(x => x.Key);
+
+        //    var duplicated = realEstates.FindAll(p => duplicatedKey.Contains(p.Adress));
+        //}
+        public static void PrintListToCSV(string fileName, List<RealEstate> realEstates)
+        {
+            using (StreamWriter wr = new StreamWriter(fileName, false, Encoding.UTF8))
+            {
+                wr.WriteLine("{0};{1};{2};{3}",
+                    "Adresas", "Kaina", "Koks Plotas", "Paskirtis");
+                var listDistinct = realEstates.Distinct().ToList();
+                foreach (var item in listDistinct)
+                {
+                    wr.WriteLine("{0};{1};{2};{3}", item.Adress, item.Price, item.Plot, item.Intendance);
+                }
+                               
+            }
+            Console.WriteLine("CSV failas sukurtas!");
+        }
+
+
+
+
+
+        //public static void PrintInfoToTxt(string fileName, string filename2, string filename3, List<HtmlNode> adressPriceList, List<HtmlNode> areaOverall, List<HtmlNode> intendances)
+        //{
+        //    using (StreamWriter writer = File.AppendText(fileName))
         //    {
-        //        wr.WriteLine("{0};{1};{2};{3};{4};{5};{6};{7}",
-        //            "Vardas", "Pavardė", "Metai", "Ūgis", "Pozicija", "Klubas", "Pakviestas?", "Kapitonas?");
-        //        for (int i = 0; i < adressPriceList.Count; i++)
+        //        foreach (var ProductListItemPrices in adressPriceList)
         //        {
-        //            wr.WriteLine("{0};{1};{2};{3};{4};{5};{6};{7}",
-        //                adressPriceList[i].Name, players[i].Surname, players[i].BirthDate.ToString("d"), players[i].Height, players[i].Position, players[i].Club, players[i].Invited, players[i].IsCaptain);
+        //            writer.WriteLine(ProductListItemPrices.Descendants("h3").FirstOrDefault().InnerText.Trim());
+        //            writer.WriteLine(ProductListItemPrices.Descendants("div")
+        //        .Where(x => x.GetAttributeValue("class", "")
+        //        .Equals("price")).FirstOrDefault().InnerText.Trim().Replace(" ", ""));
+        //        }
+        //    }
+        //    using (StreamWriter writer2 = File.AppendText(filename2))
+        //    {
+        //        foreach (var ProductListItemArea in areaOverall)
+        //        {
+
+        //            writer2.WriteLine(ProductListItemArea.InnerText.Trim());
+        //        }
+        //    }
+        //    using (StreamWriter writer3 = File.AppendText(filename3))
+        //    {
+        //        foreach (var ProductListItemIntendances in intendances)
+        //        {
+        //            writer3.WriteLine(ProductListItemIntendances.InnerText.Trim());
         //        }
         //    }
         //}
+
     }
     //using (var file = new StreamReader(fileName, Encoding.UTF8))
     //{
@@ -165,5 +154,42 @@ namespace Web_Scraper_Project
     //                    price: Convert.ToInt32(y[3].Replace("€", "")));
     //            })
     //            .ToList();
+
+
+
+    // price list
+
+    // foreach (var ProductListItemAdress in productList)
+    // {
+    //     //adressPriceList.Add
+    //     var xd = (ProductListItemAdress.Descendants("span")
+    //.Where(x => x.GetAttributeValue("class", "")
+    //.Contains("list-item-price")));
+    // }
+
+    // // adress
+
+    // foreach (var ProductListItemAdress in productList)
+    // {
+    //     adresses.AddRange(ProductListItemAdress.Descendants("h3").ToList());
+    // }
+
+    // // area overall list
+
+    // foreach (var ProductListItemArea in productList)
+    // {
+    //     areaOverall.AddRange(ProductListItemArea.Descendants("td")
+    //     .Where(x => x.GetAttributeValue("class", "")
+    //     .Equals("list-AreaOverall")).ToList());
+    // }
+
+    // // intendances list
+
+    // foreach (var ProductListItemIntendences in productList)
+    // {
+    //     intendances.AddRange(ProductListItemIntendences.Descendants("td")
+    //     .Where(x => x.GetAttributeValue("class", "")
+    //     .Equals("list-Intendances")).ToList());
+    // }
 }
 

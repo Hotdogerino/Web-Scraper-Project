@@ -7,11 +7,11 @@ namespace Web_Scraper_Project
     class RealEstate
     {
         public string Adress { get; set; }
-        public decimal Price { get; set; }
-        public double Plot { get; set; }
+        public string Price { get; set; }
+        public string Plot { get; set; }
         public string Intendance { get; set; }
 
-        public RealEstate(string adress, decimal price, decimal pricePerAcre, double plot, string intendance)
+        public RealEstate(string adress, string price, string plot, string intendance)
         {
             Adress = adress;
             Price = price;
@@ -23,6 +23,20 @@ namespace Web_Scraper_Project
         public override string ToString()
         {
             return string.Format("{0};{1};{2};{3}", Adress, Price, Plot, Intendance);
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is RealEstate estate &&
+                   Adress == estate.Adress &&
+                   Price == estate.Price &&
+                   Plot == estate.Plot &&
+                   Intendance == estate.Intendance;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Adress, Price, Plot, Intendance);
         }
     }
 }
