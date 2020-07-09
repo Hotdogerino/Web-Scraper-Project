@@ -33,10 +33,12 @@ namespace Web_Scraper_Project
 
             foreach (var ProductListItemAdress in productList)
             {
-                adressPriceList.Add(ProductListItemAdress.Descendants("span")
-                .Where(x => x.GetAttributeValue("class", "")
-                .Contains("list-item-price")))
+                //adressPriceList.Add
+                var xd = (ProductListItemAdress.Descendants("span")
+           .Where(x => x.GetAttributeValue("class", "")
+           .Contains("list-item-price")));
             }
+
             // adress
 
             foreach (var ProductListItemAdress in productList)
@@ -61,6 +63,30 @@ namespace Web_Scraper_Project
                 .Where(x => x.GetAttributeValue("class", "")
                 .Equals("list-Intendances")).ToList());
             }
+
+
+            foreach (var item in productList)
+            {
+                var price = (item.Descendants("span")
+                .Where(x => x.GetAttributeValue("class", "")
+                .Contains("list-item-price")));
+
+                var adress = item.Descendants("h3");
+
+                var areaOveralls = item.Descendants("td")
+                .Where(x => x.GetAttributeValue("class", "")
+                .Equals("list-AreaOverall"));
+
+                var intendance = item.Descendants("td")
+                .Where(x => x.GetAttributeValue("class", "")
+                .Equals("list-Intendances"));
+                //RealEstate realEstate = new RealEstate(adress.First().InnerText.Trim(), price.First().InnerText
+            }
+
+
+
+
+
             Console.WriteLine(intendances.Count);
             Console.WriteLine();
 
@@ -85,7 +111,7 @@ namespace Web_Scraper_Project
             {
                 foreach (var ProductListItemArea in areaOverall)
                 {
-                    
+
                     writer2.WriteLine(ProductListItemArea.InnerText.Trim());
                 }
             }
@@ -99,35 +125,23 @@ namespace Web_Scraper_Project
         }
         public static void ReadData(string filename, string filename2, string filename3, List<HtmlNode> adressPriceList, List<HtmlNode> areaOverall, List<HtmlNode> intendances)
         {
-            string contents = File.ReadAllText(filename);
-            contents = contents.Replace("\r", "\n"); // You don't have to do this if you know your line endings are only \n
-            List<RealEstate> entries = contents
-                .Split("\n\n", StringSplitOptions.RemoveEmptyEntries)
-                .Select(x => {
-                    var y = x.Split("\n");
-                    return new RealEstate(
-                        pricePerAcre: Convert.ToInt32(y[0].Replace("€/a", "")),
-                        adress: y[1],
-                        priceDecrease: Convert.ToInt32(y[2].Replace("Kainasumažėjusi", "").Replace("%", "")),
-                        price: Convert.ToInt32(y[3].Replace("€", "")));
-                })
-                .ToList();
+
         }
 
-            //public static void PrintListsToCSV(string fileName, List<HtmlNode> adressPriceList, List<HtmlNode> areaOverall, List<HtmlNode> intendances)
-            //{
-            //    using (StreamWriter wr = new StreamWriter(fileName, false, Encoding.UTF8))
-            //    {
-            //        wr.WriteLine("{0};{1};{2};{3};{4};{5};{6};{7}",
-            //            "Vardas", "Pavardė", "Metai", "Ūgis", "Pozicija", "Klubas", "Pakviestas?", "Kapitonas?");
-            //        for (int i = 0; i < adressPriceList.Count; i++)
-            //        {
-            //            wr.WriteLine("{0};{1};{2};{3};{4};{5};{6};{7}",
-            //                adressPriceList[i].Name, players[i].Surname, players[i].BirthDate.ToString("d"), players[i].Height, players[i].Position, players[i].Club, players[i].Invited, players[i].IsCaptain);
-            //        }
-            //    }
-            //}
-        }
+        //public static void PrintListsToCSV(string fileName, List<HtmlNode> adressPriceList, List<HtmlNode> areaOverall, List<HtmlNode> intendances)
+        //{
+        //    using (StreamWriter wr = new StreamWriter(fileName, false, Encoding.UTF8))
+        //    {
+        //        wr.WriteLine("{0};{1};{2};{3};{4};{5};{6};{7}",
+        //            "Vardas", "Pavardė", "Metai", "Ūgis", "Pozicija", "Klubas", "Pakviestas?", "Kapitonas?");
+        //        for (int i = 0; i < adressPriceList.Count; i++)
+        //        {
+        //            wr.WriteLine("{0};{1};{2};{3};{4};{5};{6};{7}",
+        //                adressPriceList[i].Name, players[i].Surname, players[i].BirthDate.ToString("d"), players[i].Height, players[i].Position, players[i].Club, players[i].Invited, players[i].IsCaptain);
+        //        }
+        //    }
+        //}
+    }
     //using (var file = new StreamReader(fileName, Encoding.UTF8))
     //{
     //    string line = "";
@@ -138,5 +152,18 @@ namespace Web_Scraper_Project
 
     //    }
     //}
+    //string contents = File.ReadAllText(filename);
+    //contents = contents.Replace("\r", "\n"); // You don't have to do this if you know your line endings are only \n
+    //        List<RealEstate> entries = contents
+    //            .Split("\n\n", StringSplitOptions.RemoveEmptyEntries)
+    //            .Select(x => {
+    //                var y = x.Split("\n");
+    //                return new RealEstate(
+    //                    pricePerAcre: Convert.ToInt32(y[0].Replace("€/a", "")),
+    //                    adress: y[1],
+    //                    priceDecrease: Convert.ToInt32(y[2].Replace("Kainasumažėjusi", "").Replace("%", "")),
+    //                    price: Convert.ToInt32(y[3].Replace("€", "")));
+    //            })
+    //            .ToList();
 }
 

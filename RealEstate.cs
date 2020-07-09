@@ -8,24 +8,21 @@ namespace Web_Scraper_Project
     {
         public string Adress { get; set; }
         public decimal Price { get; set; }
-        public decimal PricePerAcre { get; set; }
-        //public double Plot { get; set; }
-        //public string Intendance { get; set; }
-        public int PriceDecrease { get; set; }
+        public double Plot { get; set; }
+        public string Intendance { get; set; }
 
-        public RealEstate(string adress, decimal price, decimal pricePerAcre, /*double plot, string intendance,*/ int priceDecrease)
+        public RealEstate(string adress, decimal price, decimal pricePerAcre, double plot, string intendance)
         {
             Adress = adress;
             Price = price;
-            PricePerAcre = pricePerAcre;
-            //Plot = plot;
-            //Intendance = intendance;
-            PriceDecrease = priceDecrease;
+            Plot = plot;
+            Intendance = intendance;
+
         }
 
         public override string ToString()
         {
-            return string.Format("{0};{1};{2}", Adress, Price, PricePerAcre);
+            return string.Format("{0};{1};{2};{3}", Adress, Price, Plot, Intendance);
         }
     }
 }
