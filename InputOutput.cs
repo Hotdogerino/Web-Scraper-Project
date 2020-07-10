@@ -11,11 +11,12 @@ namespace Web_Scraper_Project
 {
     class InputOutput
     {
+        static readonly HttpClient httpClient = new HttpClient();
         public static async Task GetHtmlAsync(List<RealEstate> realEstates, string urlName, int currentPage, int lastPage)
         {
             var url = urlName;
 
-            var httpClient = new HttpClient();
+            //var httpClient = new HttpClient();
             var html = await httpClient.GetStringAsync(url);
 
             var htmlDocument = new HtmlDocument();
@@ -29,7 +30,7 @@ namespace Web_Scraper_Project
                 .Contains("list-row")).ToList();
             foreach (var item in productList.ToList())
             {
-                if (item.InnerText.Trim().Length == 0 || item.InnerText.Trim().Contains("Kiti šio arba itin panašaus objekto skelbimai (1)"))
+                if (item.InnerText.Trim().Length == 0 || item.InnerText.Trim().Contains("Kiti šio arba itin panašaus objekto skelbimai"))
                 {
                     productList.Remove(item);
                 }
@@ -61,6 +62,7 @@ namespace Web_Scraper_Project
                 {
                     throw new NullReferenceException("Vienas objektų yra null (t.y vieno objekto reikšmė yra niekas)");
                 }
+                
                 RealEstate realEstate = new RealEstate(adress.First().InnerText.Trim(), price.First().InnerText.Replace("€", "").Replace(" ", ""), areaOveralls.First().InnerText.Trim(),
                     intendance.First().InnerText.Trim());
                 realEstates.Add(realEstate);

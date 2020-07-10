@@ -14,19 +14,22 @@ namespace Web_Scraper_Project
 {
     class Program
     {
+        
         static async Task Main(string[] args)
         {
-            string stringTest = "https://www.aruodas.lt/sklypai-pardavimui/kaune/aleksote/puslapis/1/?FOfferType=1&FOrder=Price&detailed_search=1&fbclid=IwAR1EhPVF4OAQd_S_ju72eJcGYPbJJv8YpWzeNzo-adnT2y7-SlqgEtNttzY";
+            string stringTest;
             string amountOfPages;
             var CsvFileName = @"Data.csv";
             var realEstates = new List<RealEstate>();
             List<string> urls = new List<string>();
-            Console.WriteLine("Labas mantai :D Parašyk kiek puslapių išviso tavo pasirinkimas turi ir tada see the magic happen :D");
-            Console.WriteLine("Tik numerį be tarpų parašyk.");
+            Console.WriteLine("Parašyk kiek puslapių išviso tavo pasirinkimas turi");
+            Console.WriteLine("įrašyk linką, bet kai rašysi linką įmesk jį su puslapiu antru (url turi tureti /puslapis/2/)");
+            stringTest = Console.ReadLine();
+            Console.WriteLine("Įrašyk numerį kiek yra išviso page'ų. Be tarpų parašyk.");
             amountOfPages = Console.ReadLine();
             for (int i = 1; i <= int.Parse(amountOfPages); i++)
             {
-                string localUrl = stringTest.Replace("puslapis/1", "puslapis/" + i);
+                string localUrl = stringTest.Replace("puslapis/2", "puslapis/" + i);
                 urls.Add(localUrl);
             }
             for (int i = 0; i < urls.Count; i++)
